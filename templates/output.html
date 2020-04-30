@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- Required meta tags-->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Title Page-->
+    <title>Style Transfered</title>
+
+    <!-- BootStrap CSS-->
+    <link href="{{ url_for('static', filename='css/bootstrap.css') }}" rel="stylesheet" media="all">
+
+    <!-- Icons font CSS-->
+    <link href="{{ url_for('static', filename='css/mdi-font/css/material-design-iconic-font.min.css') }}" rel="stylesheet" media="all">
+    <link href="{{ url_for('static', filename='css/font-awesome-4.7/css/font-awesome.min.css') }}" rel="stylesheet" media="all">
+
+    <!-- Font special for pages-->
+    <link href="https://fonts.googleapis.com/css?family=Poppins:100,100i,200,200i,300,300i,400,400i,500,500i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
+
+    <!-- Main CSS-->
+    <link href="{{ url_for('static', filename='css/main.css') }}" rel="stylesheet" media="all">
+
+</head>
+
+<body>
+    <div class="page-wrapper bg-gra-02 p-t-180 p-b-100 font-poppins">
+        <div class="wrapper wrapper--w780">
+            <nav class="navbar navbar-expand-lg navbar-light bg-light" style="padding: 5px; margin: 25px; border-radius: 10px; background-color: rgba(0,0,0,.5);">
+              <a class="navbar-brand" href="#">
+                <img src="{{ url_for('static', filename='images/network.png') }}" width="30" height="30" class="d-inline-block align-top" alt="">
+                Style Transfer
+              </a>
+              <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav mr-auto">
+                  <li class="nav-item">
+                    <a class="nav-link" href="{{url_for('home')}}">Home</a>
+                  </li>
+                  <li class="nav-item active">
+                    <a class="nav-link">Art <span class="sr-only">(current)</span></a>
+                  </li>
+                </ul>
+              </div>
+            </nav>
+            <div class="container">
+              <div class="jumbotron" style="background-color: rgba(210, 85, 87, 0.7);">
+                <h1>Here's your result !!</h1>
+                <p>As you can see, your image has been modified with the style of Kandinsky's painting !! Try with more iterations to see the evolution !!</p>
+              </div>
+            </div>
+            <div class="card card-3">
+                <div class="card-heading"></div>
+                <div class="card-body" style="width: 300px">
+                    <img src="{{ url_for('static', filename='output/' + user_image) }}" alt="User Image" class="img-thumbnail" style="max-width: 100%, display: block; margin-left: auto;margin-right: auto;">
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
