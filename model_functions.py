@@ -24,7 +24,7 @@ def normalize(img):
   return img
 
 
-kand_img = normalize('ml_app/style/kandinsky.jpg')
+kand_img = normalize('./style/kandinsky.jpg')
 
 
 def get_model(name):

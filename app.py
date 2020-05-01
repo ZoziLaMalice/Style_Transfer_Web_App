@@ -18,9 +18,9 @@ from model_functions import StyleContentModel, style_content_loss, tensor_to_ima
 app = Flask(__name__)
 
 
-UPLOAD_FOLDER = 'ml_app/uploads'
+UPLOAD_FOLDER = './uploads'
 ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg'])
-OUTPUT_FOLDER = 'ml_app/static/output'
+OUTPUT_FOLDER = './static/output'
 
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['OUTPUT_FOLDER'] = OUTPUT_FOLDER
@@ -67,7 +67,7 @@ def styled(filename):
 
     model = StyleContentModel(style_layers=style_layers, content_layer=content_layer)
 
-    style_targets = model(normalize('ml_app/style/kandinsky.jpg'))['style']
+    style_targets = model(normalize('./style/kandinsky.jpg'))['style']
     content_targets = model(normalize(UPLOAD_FOLDER+ "/"+filename))['content']
     
     image = tf.Variable(normalize(UPLOAD_FOLDER+ "/"+filename))
