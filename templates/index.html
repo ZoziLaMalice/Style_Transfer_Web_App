@@ -18,7 +18,17 @@
 
     <!-- Main CSS-->
     <link href="{{ url_for('static', filename='css/main.css') }}" rel="stylesheet" media="all">
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+
+
+
 </head>
+
+<!--   Here a Neural Network done with TensorFlow 2.0. The network is based on the VGG19 model. The latter will apply a style transfer from Kandinsky's image to your image. -->
 
 <body>
     <div class="page-wrapper bg-gra-01 p-t-180 p-b-100 font-poppins">
@@ -26,24 +36,73 @@
             <div class="card card-3">
                 <div class="card-heading"></div>
                 <div class="card-body">
-                    <h2 class="title">Upload your image</h2>
-                    <div class="card" style="width: 18rem; margin: 10px; background-color: #5dda7d">
-                      <div class="card-body">
-                        <p class="card-text">Here a Neural Network done with TensorFlow 2.0. The network is based on the VGG19 model. The latter will apply a style transfer from Kandinsky's image to your image.</p>
+                    <h3 style="color: white;">Our Style</h3>      
+                    <div class="container" style="width: 30rem;">
+                      <div id="myCarousel" class="carousel slide" data-ride="carousel">
+                        <!-- Indicators -->
+                        <ol class="carousel-indicators">
+                          <li data-target="#myCarousel" data-slide-to="0" class="active"></li>
+                          <li data-target="#myCarousel" data-slide-to="1"></li>
+                          <li data-target="#myCarousel" data-slide-to="2"></li>
+                          <li data-target="#myCarousel" data-slide-to="3"></li>
+                        </ol>
+
+                        <!-- Wrapper for slides -->
+                        <div class="carousel-inner">
+                          <div class="item active">
+                            <img src="{{ url_for('static', filename='style/picasso.jpg') }}" alt="Picasso" style="width:600px; height:165px;">
+                          </div>
+
+                          <div class="item">
+                            <img src="{{ url_for('static', filename='style/kandinsky.jpg') }}" alt="Kandinsky" style="width:600px; height:165px;">
+                          </div>
+                        
+                          <div class="item">
+                            <img src="{{ url_for('static', filename='style/van_gogh.jpg') }}" alt="Van Gogh" style="width:600px; height:165px;">
+                          </div>
+
+                          <div class="item">
+                            <img src="{{ url_for('static', filename='style/kanagawa.jpg') }}" alt="Kanagawa" style="width:600px; height:165px;">
+                          </div>
+                        </div>
+
+                        <!-- Left and right controls -->
+                        <a class="left carousel-control" href="#myCarousel" data-slide="prev">
+                          <span class="glyphicon glyphicon-chevron-left"></span>
+                          <span class="sr-only">Previous</span>
+                        </a>
+                        <a class="right carousel-control" href="#myCarousel" data-slide="next">
+                          <span class="glyphicon glyphicon-chevron-right"></span>
+                          <span class="sr-only">Next</span>
+                        </a>
                       </div>
                     </div>
+
                     <form method="POST" enctype=multipart/form-data>
                         <div class="input-group">
+                            <h2 class="title">Choose your style</h2>
+                            <select name="style">
+                              <option selected disabled>Select an option</option>
+                              <option value="picasso.jpg">Picasso</option>
+                              <option value="kandinsky.jpg">Kandinsky</option>
+                              <option value="van_gogh.jpg">Van Gogh</option>
+                              <option value="kanagawa.jpg">Kanagawa</option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <h2 class="title">Upload your image</h2>
                             <input type=file name="upload_file" style="color: white;">
                         </div>
                         <div class="input-group">
-                            <input class="input--style-3" type="number" placeholder="Number of Epochs" name="epochs">
+                            <input class="input--style-3" type="number" min="0" placeholder="Epochs (Optionnal)" name="epochs">
                         </div>
                         <div class="input-group">
-                            <input class="input--style-3" type="number" placeholder="Number of Step per Epochs" name="steps">
+                            <input class="input--style-3" type="number" min="0" placeholder="Step per Epochs (Optionnal)" name="steps">
                         </div>
                         <div class="p-t-10">
-                            <button class="btn btn--pill btn--green" type="submit" style="background-color: #5dda7d">Submit</button>
+                            <button class="btn btn--pill btn--green" type="submit" style="background-color: #5dda7d; color:black; font-weight: bold;" value="slow" name="btn">Slow Way</button>
+                            <span style="display:inline-block; width: 20px;"></span>
+                            <button class="btn btn--pill btn--green" type="submit" style="background-color: #5dda7d; color:black; font-weight: bold;" value="fast" name="btn">Fast Way</button>
                         </div>
                     </form>
                 </div>

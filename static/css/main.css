@@ -532,3 +532,16 @@ input {
     padding-bottom: 45px;
   }
 }
+
+
+.center-img {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  width: 100%;
+}
+
+.carousel-inner > .item > img {
+  width:640px;
+  height:360px;
+}

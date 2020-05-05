@@ -5,15 +5,15 @@ import os
 import IPython.display as display
 import PIL
 import tensorflow as tf
-import matplotlib.pyplot as plt
+import tensorflow_hub as hub
 import numpy as np
 import time
 from werkzeug.utils import secure_filename
 
-from model_functions import normalize, get_model, gram_matrix, clip
+from model_functions import normalize, vgg_layers, gram_matrix, clip_0_1, train_step, train_step_bis
 from model_functions import StyleContentModel, style_content_loss, tensor_to_image
 
-
+tf.config.experimental_run_functions_eagerly(True)
 
 app = Flask(__name__)
 
@@ -21,24 +21,39 @@ app = Flask(__name__)
 UPLOAD_FOLDER = './uploads'
 ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg'])
 OUTPUT_FOLDER = './static/output'
+STYLE_FOLDER = './static/style'
+
 
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['OUTPUT_FOLDER'] = OUTPUT_FOLDER
+app.config['STYLE_FOLDER'] = STYLE_FOLDER
+
 
 def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-optimizer = tf.keras.optimizers.Adam(learning_rate=0.02)
-
 
 @app.route('/', methods=['POST', 'GET'])
 def home():
     if request.method == 'POST':
+
         global epoch
         epoch = request.form.get('epochs')
+        if epoch == "":
+            epoch = 10
+        
         global steps
         steps = request.form.get('steps')
+        if steps == "":
+            steps = 10
+
+        global img_style
+        img_style = request.form.get('style')
+
+        global style_method
+        style_method = request.form.get('btn')
+
         # check if the post request has the file part
         if 'upload_file' not in request.files:
             flash('No file part')
@@ -57,46 +72,49 @@ def home():
     return render_template('index.html')
 
 
+
 @app.route('/uploads/<filename>')
 def styled(filename):
-    style_layers = ['block1_conv1', 'block2_conv1', 'block3_conv1', 'block4_conv1', 'block5_conv1']
-    content_layer = ['block5_conv2']
+    if style_method == "slow":
+        style_layers = ['block1_conv1', 'block2_conv1', 'block3_conv1', 'block4_conv1', 'block5_conv1']
+        content_layer = ['block5_conv2']
 
-    style_extractor = get_model(style_layers)
-    content_extractor = get_model(content_layer)
+        style_extractor = vgg_layers(style_layers)
+        content_extractor = vgg_layers(content_layer)
 
-    model = StyleContentModel(style_layers=style_layers, content_layer=content_layer)
+        extractor = StyleContentModel(style_layers=style_layers, content_layers=content_layer)
 
-    style_targets = model(normalize('./style/kandinsky.jpg'))['style']
-    content_targets = model(normalize(UPLOAD_FOLDER+ "/"+filename))['content']
-    
-    image = tf.Variable(normalize(UPLOAD_FOLDER+ "/"+filename))
-    
-    
-    EPOCHS = int(epoch)
-    steps_per_epoch = int(steps)
+        style_targets = extractor(normalize(STYLE_FOLDER + "/" + img_style))['style']
+        content_targets = extractor(normalize(UPLOAD_FOLDER + "/" + filename))['content']
+        
+        image = tf.Variable(normalize(UPLOAD_FOLDER + "/" + filename))
 
-    step = 0
-    start = time.time()
+        start = time.time()
 
-    for n in range(EPOCHS):
-        for m in range(steps_per_epoch):
-            step += 1
-            with tf.GradientTape() as tape:
-                outputs = model(image)
-                loss = style_content_loss(outputs, style_targets, content_targets, style_layers, content_layer, 1e-2, 1e4)
+        EPOCHS = int(epoch)
+        steps_per_epoch = int(steps)
 
-            grad = tape.gradient(loss, image)
-            optimizer.apply_gradients([(grad, image)])
-            image.assign(clip(image))
-    
-        print("Train step: {}".format(step))
-    #model.save('my_model.h5')
+        step = 0
+        for n in range(EPOCHS):
+            for m in range(steps_per_epoch):
+                step += 1
+                #train_step(image, style_targets, content_targets, style_layers, content_layer, style_weight=1e-2, content_weight=1e-4)
+                train_step_bis(image, style_targets, content_targets, style_layers, content_layer, style_weight=1e-2, content_weight=1e-4, total_variation_weight=30)
 
-    tensor_to_image(image).save(OUTPUT_FOLDER+ "/"+filename)
+            print("Train step: {}".format(step))
+          
+        end = time.time()
+        print("Total time: {:.1f}".format(end-start))
 
-    end = time.time()
-    print("Total time: {:.1f}".format(end-start))
+        tensor_to_image(image).save(OUTPUT_FOLDER + "/" + filename)
+
+    else:
+        hub_module = hub.load('https://tfhub.dev/google/magenta/arbitrary-image-stylization-v1-256/2')
+        style_image = normalize(STYLE_FOLDER + "/" + img_style)
+        content_image = normalize(UPLOAD_FOLDER + "/" + filename)
+
+        stylized_image = hub_module(tf.constant(content_image), tf.constant(style_image))[0]
+        tensor_to_image(stylized_image).save(OUTPUT_FOLDER + "/" + filename)
 
     return render_template("output.html", user_image = filename)
 
